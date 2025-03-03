@@ -1,33 +1,28 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ✅ Middleware
-app.use(express.json()); // Enable JSON parsing
-app.use(cors()); // Allow frontend to access API
+// Middleware to parse JSON
+app.use(express.json());
 
-// ✅ MongoDB Connection (Fixed Warnings)
+// Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log('✅ Connected to MongoDB'))
-    .catch(err => {
-        console.error('❌ MongoDB connection error:', err.message);
-        process.exit(1); // Stop server on DB connection failure
-    });
+    .catch(err => console.error('❌ Could not connect to MongoDB:', err));
 
-// ✅ Routes
+// Use the contacts route
 const contactsRouter = require('./routes/contacts');
-app.use('/api/contacts', contactsRouter); // Ensure correct API path
+app.use('/contacts', contactsRouter);
 
-// ✅ Root Route
+// Define a simple root route
 app.get('/', (req, res) => {
-    res.status(200).send('🚀 API is running!');
+    res.send('🚀 API is running!');
 });
 
-// ✅ Start Server (Ensure Correct Port on Render)
-app.listen(PORT, '0.0.0.0', () => {
+// Start the server
+app.listen(PORT, () => {
     console.log(`✅ Server is running on port ${PORT}`);
 });
