@@ -1,46 +1,20 @@
 const express = require('express');
 const router = express.Router();
-const Contact = require('../models/contact'); // Import Contact model
+const contactsController = require('../controllers/contactsController');
 
-// ✅ 1️⃣ Get ALL contacts
-router.get('/', async (req, res) => {
-    try {
-        const contacts = await Contact.find(); // Fetch all contacts from MongoDB
-        res.status(200).json(contacts); // Return JSON response
-    } catch (err) {
-        res.status(500).json({ message: 'Error retrieving contacts', error: err });
-    }
-});
+// ✅ Get all contacts
+router.get('/', contactsController.getAllContacts);
 
-// ✅ 2️⃣ Get a SINGLE contact by ID
-router.get('/:id', async (req, res) => {
-    try {
-        const contact = await Contact.findById(req.params.id); // Find by MongoDB ID
-        if (!contact) return res.status(404).json({ message: 'Contact not found' });
-        res.status(200).json(contact); // Return JSON response
-    } catch (err) {
-        res.status(500).json({ message: 'Error retrieving contact', error: err });
-    }
-});
+// ✅ Get a single contact by ID
+router.get('/:id', contactsController.getContactById);
 
-// ✅ 3️⃣ Create a NEW contact
-router.post('/', async (req, res) => {
-    const { firstName, lastName, email, favoriteColor, birthday } = req.body;
+// ✅ Create a new contact
+router.post('/', contactsController.createContact);
 
-    const newContact = new Contact({
-        firstName,
-        lastName,
-        email,
-        favoriteColor,
-        birthday
-    });
+// ✅ Update an existing contact
+router.put('/:id', contactsController.updateContact);
 
-    try {
-        const savedContact = await newContact.save();
-        res.status(201).json(savedContact);
-    } catch (err) {
-        res.status(400).json({ message: 'Error saving contact', error: err });
-    }
-});
+// ✅ Delete a contact
+router.delete('/:id', contactsController.deleteContact);
 
 module.exports = router;
