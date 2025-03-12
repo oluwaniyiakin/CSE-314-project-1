@@ -7,7 +7,6 @@
     },
     "host": "cse-314-project-1-1.onrender.com",
     "schemes": ["https"],
-    "basePath": "/",
     "paths": {
         "/contacts": {
             "get": {
@@ -22,7 +21,6 @@
                     {
                         "name": "body",
                         "in": "body",
-                        "required": true,
                         "schema": {
                             "$ref": "#/definitions/Contact"
                         }
@@ -36,9 +34,7 @@
         "/contacts/{id}": {
             "get": {
                 "summary": "Retrieve a contact by ID",
-                "parameters": [
-                    { "name": "id", "in": "path", "required": true, "type": "string" }
-                ],
+                "parameters": [{ "name": "id", "in": "path", "required": true, "type": "string" }],
                 "responses": {
                     "200": { "description": "Successful response" },
                     "404": { "description": "Contact not found" }
@@ -46,17 +42,7 @@
             },
             "put": {
                 "summary": "Update an existing contact",
-                "parameters": [
-                    { "name": "id", "in": "path", "required": true, "type": "string" },
-                    {
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/Contact"
-                        }
-                    }
-                ],
+                "parameters": [{ "name": "id", "in": "path", "required": true, "type": "string" }],
                 "responses": {
                     "200": { "description": "Contact updated successfully" },
                     "404": { "description": "Contact not found" }
@@ -64,9 +50,7 @@
             },
             "delete": {
                 "summary": "Delete a contact",
-                "parameters": [
-                    { "name": "id", "in": "path", "required": true, "type": "string" }
-                ],
+                "parameters": [{ "name": "id", "in": "path", "required": true, "type": "string" }],
                 "responses": {
                     "200": { "description": "Contact deleted successfully" },
                     "404": { "description": "Contact not found" }
@@ -80,11 +64,10 @@
             "properties": {
                 "firstName": { "type": "string" },
                 "lastName": { "type": "string" },
-                "email": { "type": "string", "format": "email" },
+                "email": { "type": "string" },
                 "favoriteColor": { "type": "string" },
                 "birthday": { "type": "string", "format": "date" }
-            },
-            "required": ["firstName", "lastName", "email", "favoriteColor", "birthday"]
+            }
         }
     }
 }
