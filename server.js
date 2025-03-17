@@ -9,6 +9,9 @@ const companiesRouter = require("./routes/company");
 const app = express();
 const PORT = process.env.PORT || 5500;
 
+const setupSwagger = require('./config/swagger');
+setupSwagger(app);
+
 // ✅ Middleware
 app.use(cors());
 app.use(express.json());

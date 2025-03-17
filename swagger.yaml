@@ -1,0 +1,171 @@
+openapi: 3.0.0
+info:
+  title: Contacts API
+  version: 1.0.0
+  description: API for managing contacts with CRUD operations.
+
+servers:
+  - url: https://cse-314-project-1-1.onrender.com
+    description: Deployed API
+
+paths:
+  /contacts:
+    get:
+      summary: Get all contacts
+      tags:
+        - Contacts
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              example:
+                - id: "123"
+                  name: "John Doe"
+                  email: "john@example.com"
+                  phone: "1234567890"
+
+    post:
+      summary: Create a new contact
+      tags:
+        - Contacts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Jane Doe
+                email:
+                  type: string
+                  example: jane@example.com
+                phone:
+                  type: string
+                  example: "9876543210"
+              required:
+                - name
+                - email
+                - phone
+      responses:
+        "201":
+          description: Contact created successfully
+          content:
+            application/json:
+              example:
+                id: "456"
+                name: "Jane Doe"
+                email: "jane@example.com"
+                phone: "9876543210"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              example:
+                error: "Name, email, and phone are required"
+
+  /contacts/{id}:
+    get:
+      summary: Get a contact by ID
+      tags:
+        - Contacts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the contact
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              example:
+                id: "123"
+                name: "John Doe"
+                email: "john@example.com"
+                phone: "1234567890"
+        "404":
+          description: Contact not found
+          content:
+            application/json:
+              example:
+                error: "Contact not found"
+
+    put:
+      summary: Update a contact by ID
+      tags:
+        - Contacts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the contact
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Updated Name
+                email:
+                  type: string
+                  example: updated@example.com
+                phone:
+                  type: string
+                  example: "1112223333"
+      responses:
+        "200":
+          description: Contact updated successfully
+          content:
+            application/json:
+              example:
+                id: "123"
+                name: "Updated Name"
+                email: "updated@example.com"
+                phone: "1112223333"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              example:
+                error: "Invalid request data"
+        "404":
+          description: Contact not found
+          content:
+            application/json:
+              example:
+                error: "Contact not found"
+
+    delete:
+      summary: Delete a contact by ID
+      tags:
+        - Contacts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the contact
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Contact deleted successfully
+          content:
+            application/json:
+              example:
+                message: "Contact deleted"
+        "404":
+          description: Contact not found
+          content:
+            application/json:
+              example:
+                error: "Contact not found"
