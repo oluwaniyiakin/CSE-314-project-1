@@ -1,56 +1,92 @@
-const Contact = require('../models/contact');
+const pool = require("../models/contact");
 
-// ✅ GET ALL CONTACTS
-exports.getAllContacts = async (req, res) => {
-    try {
-        const contacts = await Contact.find();
-        res.status(200).json(contacts);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+// Get all contacts
+const getAllContacts = async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM contacts");
+    res.status(200).json(result.rows);
+  } catch (error) {
+    res.status(500).json({ message: "Error retrieving contacts", error });
+  }
 };
 
-// ✅ GET CONTACT BY ID
-exports.getContactById = async (req, res) => {
-    try {
-        const contact = await Contact.findById(req.params.id);
-        if (!contact) return res.status(404).json({ message: 'Contact not found' });
-        res.status(200).json(contact);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+// Get a single contact by ID
+const getContactById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query("SELECT * FROM contacts WHERE id = $1", [id]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Contact not found" });
     }
+
+    res.status(200).json(result.rows[0]);
+  } catch (error) {
+    res.status(500).json({ message: "Error retrieving contact", error });
+  }
 };
 
-// ✅ CREATE A NEW CONTACT
-exports.createContact = async (req, res) => {
-    try {
-        const { firstName, lastName, email, favoriteColor, birthday } = req.body;
-        const newContact = new Contact({ firstName, lastName, email, favoriteColor, birthday });
-        await newContact.save();
-        res.status(201).json({ id: newContact._id, message: "Contact created successfully" });
-    } catch (error) {
-        res.status(400).json({ message: error.message });
+// Create a new contact
+const createContact = async (req, res) => {
+  try {
+    const { name, email, phone } = req.body;
+
+    if (!name || !email || !phone) {
+      return res.status(400).json({ message: "All fields are required" });
     }
+
+    const result = await pool.query(
+      "INSERT INTO contacts (name, email, phone) VALUES ($1, $2, $3) RETURNING *",
+      [name, email, phone]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    res.status(500).json({ message: "Error creating contact", error });
+  }
 };
 
-// ✅ UPDATE A CONTACT
-exports.updateContact = async (req, res) => {
-    try {
-        const updatedContact = await Contact.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!updatedContact) return res.status(404).json({ message: "Contact not found" });
-        res.status(200).json({ message: "Contact updated successfully", updatedContact });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+// Update a contact
+const updateContact = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, email, phone } = req.body;
+
+    const result = await pool.query(
+      "UPDATE contacts SET name = $1, email = $2, phone = $3 WHERE id = $4 RETURNING *",
+      [name, email, phone, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Contact not found" });
     }
+
+    res.status(200).json(result.rows[0]);
+  } catch (error) {
+    res.status(500).json({ message: "Error updating contact", error });
+  }
 };
 
-// ✅ DELETE A CONTACT
-exports.deleteContact = async (req, res) => {
-    try {
-        const deletedContact = await Contact.findByIdAndDelete(req.params.id);
-        if (!deletedContact) return res.status(404).json({ message: "Contact not found" });
-        res.status(200).json({ message: "Contact deleted successfully" });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+// Delete a contact
+const deleteContact = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query("DELETE FROM contacts WHERE id = $1 RETURNING *", [id]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Contact not found" });
     }
+
+    res.status(200).json({ message: "Contact deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting contact", error });
+  }
+};
+
+module.exports = {
+  getAllContacts,
+  getContactById,
+  createContact,
+  updateContact,
+  deleteContact,
 };
