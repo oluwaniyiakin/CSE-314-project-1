@@ -1,31 +1,29 @@
 require("dotenv").config();
 const express = require("express");
+const mongoose = require("mongoose");
 const cors = require("cors");
-const { Pool } = require("pg");
 const swaggerUi = require("swagger-ui-express");
-const swaggerDocument = require("./swagger.json");
+const YAML = require("yamljs");
+
+const swaggerDocument = YAML.load("./swagger.yaml");
+const contactsRouter = require("./routes/contacts");
 
 const app = express();
-const PORT = process.env.PORT || 5500;
+const PORT = process.env.PORT || 3000;
 
-// ✅ Enable CORS for all origins
+// ✅ Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json()); // Body parser
 
-// ✅ Connect to PostgreSQL
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false, // Required for Render deployment
-  },
-});
+// ✅ Connect to MongoDB
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log("✅ MongoDB connected"))
+    .catch((err) => {
+        console.error("❌ MongoDB Connection Error:", err);
+        process.exit(1); // Exit if DB connection fails
+    });
 
-pool.connect()
-  .then(() => console.log("✅ PostgreSQL connected"))
-  .catch((err) => console.error("❌ PostgreSQL Connection Error:", err));
-
-// ✅ Import and Use Routes
-const contactsRouter = require("./routes/contact");
+// ✅ Routes
 app.use("/contacts", contactsRouter);
 
 // ✅ Swagger API Documentation
@@ -33,10 +31,10 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // ✅ Root Route
 app.get("/", (req, res) => {
-  res.send("🚀 Contacts API is running with PostgreSQL!");
+    res.send("🚀 Contacts API is running with MongoDB!");
 });
 
 // ✅ Start Server
 app.listen(PORT, () => {
-  console.log(`✅ Server running on port ${PORT}`);
+    console.log(`✅ Server running on port ${PORT}`);
 });
